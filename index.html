@@ -225,27 +225,27 @@
         }
 
         function openModal(index) {
-            gameState.usedCards.add(index);
-            renderCards();
+    gameState.usedCards.add(index);
+    renderCards();
 
-            const isImpostor = gameState.papeis[index] === 'impostor';
-            const funcaoIndex = gameState.papeis.slice(0, index).filter(p => p === 'inocente').length;
-            const content = document.getElementById('roleContent');
+    const isImpostor = gameState.papeis[index] === 'impostor';
+    const funcaoIndex = gameState.papeis.slice(0, index).filter(p => p === 'inocente').length;
+    const content = document.getElementById('roleContent');
 
-            if (isImpostor) {
-                content.innerHTML = `
-                    <div class="role-title impostor-role">🕵️ IMPOSTOR</div>
-                    <div class="role-text">Você não sabe onde está...<br>Finja que sabe!</div>
-                `;
-            } else {
-                content.innerHTML = `
-                    <div class="role-title">📍 ${gameState.lugar}</div>
-                    <div class="role-text">💼 ${gameState.funcoes[funcaoIndex]}</div>
-                `;
-            }
+    if (isImpostor) {
+        content.innerHTML = `
+            <div class="role-title impostor-role">🕵️‍♂️ IMPOSTOR</div>
+            <div class="role-text">Você é o impostor!<br>Não sabe onde está 👀</div>
+        `;
+    } else {
+        content.innerHTML = `
+            <div class="role-title">📍 ${gameState.lugar}</div>
+            <div class="role-text">👔 ${gameState.funcoes[funcaoIndex]}</div>
+        `;
+    }
 
-            document.getElementById('roleModal').classList.add('active');
-        }
+    document.getElementById('roleModal').classList.add('active');
+}
 
         function closeModal() {
             document.getElementById('roleModal').classList.remove('active');
