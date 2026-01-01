@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Impostor Game</title>
+    <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { 
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif; 
+        background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%); 
+        color: #fff; padding: 15px; min-height: 100vh; 
+    }
+    .container { max-width: 420px; margin: 0 auto; padding: 10px; }
+    .screen { display: none; text-align: center; min-height: 100vh; }
+    .screen.active { display: flex; flex-direction: column; justify-content: center; align-items: center; }
+    
+    /* Inputs e botões mobile */
+    input { 
+        width: 100%; max-width: 300px; padding: 18px 16px; margin: 12px 0; font-size: 18px; 
+        border: none; border-radius: 12px; background: #16213e; color: white; 
+        text-align: center; box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+    }
+    input::placeholder { color: #aaa; }
+    button { 
+        background: linear-gradient(135deg, #ff4757, #ff3838); color: white; border: none; 
+        padding: 18px 35px; font-size: 18px; font-weight: bold; border-radius: 12px; 
+        cursor: pointer; margin: 12px; min-width: 200px; box-shadow: 0 6px 20px rgba(255,71,87,0.4);
+        transition: all 0.2s;
+    }
+    button:hover:not(:disabled), button:active:not(:disabled) { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(255,71,87,0.5); }
+    button:disabled { background: #666; cursor: not-allowed; transform: none; }
+    
+    /* Cards responsivos */
+    .cards-grid { 
+        display: grid; 
+        grid-template-columns: repeat(auto-fit, minmax(min(110px, 95vw), 1fr)); 
+        gap: 12px; margin-top: 25px; padding: 10px; max-width: 100%; 
+    }
+    .card { 
+        background: linear-gradient(145deg, #16213e, #0f1a2e); height: 110px; 
+        border-radius: 18px; display: flex; align-items: center; justify-content: center; 
+        font-size: clamp(14px, 4vw, 16px); font-weight: bold; cursor: pointer; 
+        transition: all 0.3s ease; border: 3px solid #0f3460; position: relative; 
+        box-shadow: 0 6px 20px rgba(0,0,0,0.4);
+    }
+    .card:hover:not(.used) { 
+        transform: scale(1.08) translateY(-4px); border-color: #ff4757; 
+        box-shadow: 0 12px 30px rgba(255,71,87,0.4);
+    }
+    .card.used { 
+        opacity: 0.5; cursor: not-allowed; border-color: #666; 
+        background: linear-gradient(145deg, #333, #222); transform: none;
+    }
+    h1 { 
+        margin-bottom: 25px; color: #ff6b7a; font-size: clamp(24px, 8vw, 32px); 
+        text-shadow: 0 2px 10px rgba(255,107,122,0.5);
+    }
+    .loading { color: #ff6b7a; font-size: clamp(16px, 5vw, 18px); margin-bottom: 15px; }
+    
+    /* Modal RESPONSIVO */
+    .modal { 
+        display: none; position: fixed; z-index: 1000; left: 0; top: 0; 
+        width: 100%; height: 100%; background: rgba(0,0,0,0.96); 
+    }
+    .modal.active { display: flex; align-items: center; justify-content: center; padding: 15px; }
+    .modal-content { 
+        background: linear-gradient(145deg, #fff, #f8f9fa); color: #000; 
+        padding: 90px 30px 50px 30px; border-radius: 25px; 
+        width: min(95vw, 400px); max-height: 85vh; text-align: center; 
+        position: relative; animation: popupIn 0.4s cubic-bezier(0.25,0.46,0.45,0.94); 
+        box-shadow: 0 25px 60px rgba(0,0,0,0.6); margin: auto;
+        overflow-y: auto;
+    }
+    @keyframes popupIn { 
+        from { transform: scale(0.7) translateY(30px); opacity: 0; } 
+        to { transform: scale(1) translateY(0); opacity: 1; } 
+    }
+    .close-btn { 
+        position: absolute; top: 18px; right: 20px; background: linear-gradient(145deg, #f0f0f0, #e0e0e0); 
+        border: 3px solid #ddd; border-radius: 50%; width: clamp(50px, 15vw, 60px); 
+        height: clamp(50px, 15vw, 60px); font-size: clamp(24px, 7vw, 32px); cursor: pointer; 
+        color: #666; display: flex; align-items: center; justify-content: center; font-weight: bold;
+        transition: all 0.25s; z-index: 1001; box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+    }
+    .close-btn:hover, .close-btn:active { 
+        background: linear-gradient(145deg, #ff4757, #ff3838); color: white; 
+        border-color: #ff4757; transform: scale(1.15) rotate(90deg); 
+        box-shadow: 0 8px 25px rgba(255,71,87,0.5);
+    }
+    .role-title { 
+        font-size: clamp(22px, 7vw, 28px); font-weight: 800; margin-bottom: 18px; 
+        line-height: 1.3; padding: 0 clamp(60px, 20vw, 80px) 0 20px; 
+        word-break: break-word; text-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
+    .role-text { 
+        font-size: clamp(18px, 5.5vw, 22px); line-height: 1.5; margin-top: 12px; 
+        padding: 0 clamp(60px, 20vw, 80px) 0 20px; word-break: break-word;
+    }
+    .impostor-role { color: #ff4757 !important; text-shadow: 0 2px 8px rgba(255,71,87,0.5) !important; }
+
+    /* Media queries extras para telas muito pequenas */
+    @media (max-width: 360px) {
+        .cards-grid { grid-template-columns: repeat(3, 1fr); gap: 10px; }
+        .card { height: 95px; font-size: 14px; }
+        button { padding: 16px 25px; font-size: 16px; min-width: 180px; }
+    }
+</style>
+
+</head>
+<body>
+    <div class="container">
+        <!-- Tela de Configuração -->
+        <div id="configScreen" class="screen active">
+            <h1>🎮 Impostor Game</h1>
+            <div id="loadingMsg" class="loading" style="display:none;">Carregando lugares...</div>
+            <div>Jogadores:</div>
+            <input type="number" id="numJogadores" min="4" max="15" value="8">
+            <div>Impostores:</div>
+            <input type="number" id="numImpostores" min="1" max="5" value="2">
+            <button id="startBtn" onclick="startGame()" disabled>Carregando...</button>
+        </div>
+
+        <!-- Tela dos Cards -->
+        <div id="cardsScreen" class="screen">
+            <h1>🃏 Escolha seu Card</h1>
+            <div class="cards-grid" id="cardsGrid"></div>
+            <button onclick="resetGame()">Nova Partida</button>
+        </div>
+    </div>
+
+    <!-- Popup Modal - certifique que tem EXATAMENTE assim -->
+<div id="roleModal" class="modal">
+    <div class="modal-content">
+        <button class="close-btn" onclick="closeModal()">&times;</button>
+        <div id="roleContent"></div>
+    </div>
+</div>
+
+
+    <script>
+        // JSON EMBUTIDO como fallback (12 lugares)
+        const lugaresFallback = {
+            "Hospital": ["Médico", "Enfermeiro", "Paciente", "Recepcionista", "Cirurgião", "Farmacêutico", "Porteiro"],
+            "Escola": ["Professor", "Aluno", "Diretor", "Zelador", "Bibliotecário", "Coordenador", "Secretária"],
+            "Espaçonave": ["Capitão", "Engenheiro", "Navegador", "Médico de Bordo", "Cientista", "Técnico", "Comissário"],
+            "Banco": ["Gerente", "Caixa", "Segurança", "Cliente", "Auditor", "Diretor", "Contador"],
+            "Restaurante": ["Chef", "Garçom", "Cliente", "Gerente", "Cozinheiro", "Limpador", "Sommelier"],
+            "Cinema": ["Projetista", "Bilheteiro", "Espectador", "Gerente", "Limpador", "Segurança", "Lanterna"],
+            "Praia": ["Salva-vidas", "Turista", "Vendedor de Sorvete", "Guarda", "Instrutor de Surf", "Massagista"],
+            "Supermercado": ["Caixa", "Repositor", "Cliente", "Gerente", "Segurança", "Padeiro", "Açougueiro"],
+            "Fábrica": ["Gerente", "Operador", "Engenheiro", "Manutenção", "Supervisor", "Estoquista"],
+            "Shopping": ["Vendedor", "Cliente", "Segurança", "Promotor", "Gerente de Loja", "Limpeza"],
+            "Estádio": ["Jogador", "Torcedor", "Árbitro", "Comentarista", "Jornalista", "Segurança"],
+            "Parque": ["Guarda", "Visitante", "Vendedor Ambulante", "Animador", "Limpeza"]
+        };
+
+        let lugares = lugaresFallback;
+        let gameState = null;
+
+        // Tenta carregar JSON externo, mas usa fallback se falhar
+        document.getElementById('loadingMsg').style.display = 'block';
+        fetch('lugares.json')
+            .then(response => response.json())
+            .then(data => {
+                lugares = data.lugares || lugaresFallback;
+                console.log('Lugares carregados:', Object.keys(lugares).length);
+            })
+            .catch(err => {
+                console.warn('JSON externo não encontrado, usando embutido:', err);
+            })
+            .finally(() => {
+                document.getElementById('loadingMsg').style.display = 'none';
+                document.getElementById('startBtn').disabled = false;
+                document.getElementById('startBtn').textContent = 'Começar Jogo';
+            });
+
+        function startGame() {
+            const numJogadores = parseInt(document.getElementById('numJogadores').value);
+            const numImpostores = parseInt(document.getElementById('numImpostores').value);
+
+            if (numImpostores >= numJogadores || numJogadores < 4) {
+                alert('Número inválido! Jogadores ≥ 4, Impostores < Jogadores.');
+                return;
+            }
+
+            let papeis = Array(numImpostores).fill('impostor');
+            papeis = papeis.concat(Array(numJogadores - numImpostores).fill('inocente'));
+            papeis.sort(() => Math.random() - 0.5);
+
+            const lugaresList = Object.keys(lugares);
+            const lugarEscolhido = lugaresList[Math.floor(Math.random() * lugaresList.length)];
+            const funcoes = lugares[lugarEscolhido].slice(0, numJogadores - numImpostores);
+
+            gameState = {
+                papeis,
+                lugar: lugarEscolhido,
+                funcoes,
+                usedCards: new Set()
+            };
+
+            document.getElementById('configScreen').classList.remove('active');
+            document.getElementById('cardsScreen').classList.add('active');
+            renderCards();
+        }
+
+        function renderCards() {
+            const grid = document.getElementById('cardsGrid');
+            grid.innerHTML = '';
+            for (let i = 0; i < gameState.papeis.length; i++) {
+                const card = document.createElement('div');
+                card.className = `card ${gameState.usedCards.has(i) ? 'used' : ''}`;
+                card.textContent = gameState.usedCards.has(i) ? '✓' : '?';
+                if (!gameState.usedCards.has(i)) {
+                    card.onclick = () => openModal(i);
+                }
+                grid.appendChild(card);
+            }
+        }
+
+        function openModal(index) {
+            gameState.usedCards.add(index);
+            renderCards();
+
+            const isImpostor = gameState.papeis[index] === 'impostor';
+            const funcaoIndex = gameState.papeis.slice(0, index).filter(p => p === 'inocente').length;
+            const content = document.getElementById('roleContent');
+
+            if (isImpostor) {
+                content.innerHTML = `
+                    <div class="role-title impostor-role">🕵️ IMPOSTOR</div>
+                    <div class="role-text">Você não sabe onde está...<br>Finja que sabe!</div>
+                `;
+            } else {
+                content.innerHTML = `
+                    <div class="role-title">📍 ${gameState.lugar}</div>
+                    <div class="role-text">💼 ${gameState.funcoes[funcaoIndex]}</div>
+                `;
+            }
+
+            document.getElementById('roleModal').classList.add('active');
+        }
+
+        function closeModal() {
+            document.getElementById('roleModal').classList.remove('active');
+        }
+
+        function resetGame() {
+            gameState = null;
+            document.getElementById('cardsScreen').classList.remove('active');
+            document.getElementById('configScreen').classList.add('active');
+        }
+
+        document.getElementById('roleModal').onclick = function(e) {
+            if (e.target === this) closeModal();
+        };
+    </script>
+</body>
+</html>
