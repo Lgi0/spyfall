@@ -89,14 +89,20 @@
         box-shadow: 0 8px 25px rgba(255,71,87,0.5);
     }
     .role-title { 
-        font-size: clamp(22px, 7vw, 28px); font-weight: 800; margin-bottom: 18px; 
-        line-height: 1.3; padding: 0 clamp(60px, 20vw, 80px) 0 20px; 
-        word-break: break-word; text-shadow: 0 1px 3px rgba(0,0,0,0.1);
-    }
-    .role-text { 
-        font-size: clamp(18px, 5.5vw, 22px); line-height: 1.5; margin-top: 12px; 
-        padding: 0 clamp(60px, 20vw, 80px) 0 20px; word-break: break-word;
-    }
+    font-size: clamp(22px, 7vw, 28px); font-weight: 800; margin-bottom: 18px; 
+    line-height: 1.3; padding: 0 clamp(60px, 20vw, 80px) 0 20px; 
+    /* REMOVE word-break: break-word; */
+    white-space: nowrap; /* NÃO quebra palavras */
+    overflow: hidden; text-overflow: ellipsis; /* ... se muito longo */
+}
+.role-text { 
+    font-size: clamp(18px, 5.5vw, 22px); line-height: 1.5; margin-top: 12px; 
+    padding: 0 clamp(60px, 20vw, 80px) 0 20px; 
+    /* REMOVE word-break: break-word; */
+    word-wrap: break-word; /* Quebra só após /, não no meio */
+    hyphens: auto; /* Hífen só quando natural */
+}
+
     .impostor-role { color: #ff4757 !important; text-shadow: 0 2px 8px rgba(255,71,87,0.5) !important; }
 
     /* Media queries extras para telas muito pequenas */
