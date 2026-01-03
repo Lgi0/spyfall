@@ -19,24 +19,8 @@
     "Universidade": ["Professor Titular", "Aluno de Pós", "Reitor", "Bibliotecário", "Secretária Acadêmica", "Pesquisador", "Estudante Calouro", "Monitor", "Técnico Laboratório", "Segurança Campus", "Cantina", "Professor Visitante", "Sindicato", "Jornal Estudantil", "Faxineiro"],
     "Festa": ["Dono da Festa", "DJ", "Convidado Popular", "Garçom", "Segurança", "Fotógrafo", "Dançarino Profissional", "Influencer", "Vizinho Reclamante", "Ex Namorado", "Amigo Falso", "Criança Escondida", "Copeiro", "Animador", "Policial Chamado"],
     "Presídio": ["Diretor do Presídio", "Guarda Penitenciário", "Presidiário Vitalício", "Advogado de Defesa", "Psiquiatra", "Cozinheiro Preso", "Limpeza Condenado", "Visitante Familiar", "Promotor", "Juiz Visitante", "Advogado Corrupto", "Informante", "Fuga Planejador", "Direitos Humanos", "Pároco"],
-    "Teatro": ["Diretor Teatral", "Ator Principal", "Cenógrafo", "Iluminador", "Maquiador", "Figurinista", "Bilheteiro", "Crítico Teatral", "Público VIP", "Camarim Atendente", "Contrarregra", "Orquestra Maestro", "Cantor Ópera", "Plateia Bagunceiro", "Segurança Artística"]
-    "Museu": [
-      "Curador Chefe",
-      "Guia de Exposição",
-      "Restaurador de Obras",
-      "Historiador Convidado",
-      "Vigilante de Sala",
-      "Recepcionista de Bilheteria",
-      "Educador Infantil",
-      "Montador de Exposição",
-      "Pesquisador de Acervo",
-      "Conservador de Peças",
-      "Técnico de Iluminação",
-      "Fotógrafo de Catálogo",
-      "Designer de Exposição",
-      "Visitante Escolar",
-      "Turista Sozinho"
-    ],
+    "Teatro": ["Diretor Teatral", "Ator Principal", "Cenógrafo", "Iluminador", "Maquiador", "Figurinista", "Bilheteiro", "Crítico Teatral", "Público VIP", "Camarim Atendente", "Contrarregra", "Orquestra Maestro", "Cantor Ópera", "Plateia Bagunceiro", "Segurança Artística"],
+    "Museu": ["Curador Chefe", "Guia de Exposição", "Restaurador de Obras", "Historiador Convidado", "Vigilante de Sala", "Recepcionista de Bilheteria", "Educador Infantil", "Montador de Exposição", "Pesquisador de Acervo", "Conservador de Peças", "Técnico de Iluminação", "Fotógrafo de Catálogo", "Designer de Exposição", "Visitante Escolar", "Turista Sozinho"],
     "Hotel": [
       "Gerente de Hospedagem",
       "Recepcionista Noturno",
