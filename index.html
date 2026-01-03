@@ -38,8 +38,68 @@
             align-items: center; 
         }
         
+        /* Toggle Switch para Modo Surpresa */
+        .toggle-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 20px 0;
+            font-size: 16px;
+            gap: 12px;
+        }
+        
+        .toggle-switch {
+            position: relative;
+            width: 60px;
+            height: 34px;
+        }
+        
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #666;
+            transition: 0.3s;
+            border-radius: 34px;
+        }
+        
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 26px;
+            width: 26px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: 0.3s;
+            border-radius: 50%;
+        }
+        
+        input:checked + .slider {
+            background: linear-gradient(135deg, #ff4757, #ff3838);
+        }
+        
+        input:checked + .slider:before {
+            transform: translateX(26px);
+        }
+        
+        .modo-surpresa {
+            color: #ff6b7a;
+            font-weight: bold;
+            text-shadow: 0 1px 5px rgba(255,107,122,0.5);
+        }
+        
         /* Inputs e botões mobile otimizados */
-        input { 
+        input[type="number"] { 
             width: 100%; 
             max-width: 300px; 
             padding: 18px 16px; 
@@ -53,7 +113,7 @@
             box-shadow: 0 4px 15px rgba(0,0,0,0.3);
         }
         
-        input::placeholder { 
+        input[type="number"]::placeholder { 
             color: #aaa; 
         }
         
@@ -262,6 +322,10 @@
                 font-size: 16px; 
                 min-width: 180px; 
             }
+            .toggle-container {
+                flex-direction: column;
+                gap: 8px;
+            }
         }
     </style>
 </head>
@@ -270,6 +334,16 @@
         <!-- Tela de Configuração -->
         <div id="configScreen" class="screen active">
             <h1>Camaleão do Gigio</h1>
+            
+            <!-- Toggle Modo Surpresa -->
+            <div class="toggle-container">
+                <label class="modo-surpresa">🕵️ Modo Surpresa</label>
+                <label class="toggle-switch">
+                    <input type="checkbox" id="modoSurpresa">
+                    <span class="slider"></span>
+                </label>
+            </div>
+            
             <div id="loadingMsg" class="loading" style="display:none;">Carregando lugares...</div>
             <div>Jogadores:</div>
             <input type="number" id="numJogadores" min="4" max="15" value="8">
@@ -298,11 +372,11 @@
         // JSON EMBUTIDO como fallback (12 lugares)
         const lugaresFallback = {
             "Hospital": ["Médico", "Enfermeiro", "Paciente", "Recepcionista", "Cirurgião", "Farmacêutico", "Porteiro"],
-            
         };
 
         let lugares = lugaresFallback;
         let gameState = null;
+        let modoSurpresa = false;
 
         // Tenta carregar JSON externo, mas usa fallback se falhar
         document.getElementById('loadingMsg').style.display = 'block';
@@ -321,18 +395,29 @@
                 document.getElementById('startBtn').textContent = 'Começar Jogo';
             });
 
+        // Listener para o toggle do Modo Surpresa
+        document.getElementById('modoSurpresa').addEventListener('change', function() {
+            modoSurpresa = this.checked;
+        });
+
         function startGame() {
             const numJogadores = parseInt(document.getElementById('numJogadores').value);
             const numImpostores = parseInt(document.getElementById('numImpostores').value);
 
-            if (numImpostores >= numJogadores || numJogadores < 4) {
+            if (!modoSurpresa && (numImpostores >= numJogadores || numJogadores < 4)) {
                 alert('Número inválido! Jogadores ≥ 4, Impostores < Jogadores.');
                 return;
             }
 
-            let papeis = Array(numImpostores).fill('impostor');
-            papeis = papeis.concat(Array(numJogadores - numImpostores).fill('inocente'));
-            papeis.sort(() => Math.random() - 0.5);
+            // Se Modo Surpresa estiver ativo, todos são impostores
+            let papeis;
+            if (modoSurpresa) {
+                papeis = Array(numJogadores).fill('impostor');
+            } else {
+                papeis = Array(numImpostores).fill('impostor');
+                papeis = papeis.concat(Array(numJogadores - numImpostores).fill('inocente'));
+                papeis.sort(() => Math.random() - 0.5);
+            }
 
             const lugaresList = Object.keys(lugares);
             const lugarEscolhido = lugaresList[Math.floor(Math.random() * lugaresList.length)];
@@ -343,7 +428,8 @@
                 papeis,
                 lugar: lugarEscolhido,
                 funcoes,
-                usedCards: new Set()
+                usedCards: new Set(),
+                modoSurpresa
             };
 
             document.getElementById('configScreen').classList.remove('active');
@@ -370,10 +456,9 @@
             renderCards();
 
             const isImpostor = gameState.papeis[index] === 'impostor';
-            const funcaoIndex = gameState.papeis.slice(0, index).filter(p => p === 'inocente').length;
             const content = document.getElementById('roleContent');
 
-            if (isImpostor) {
+            if (gameState.modoSurpresa || isImpostor) {
                 content.innerHTML = `
                     <div class="role-section impostor-role">
                         <div class="role-label">Local:</div>
@@ -386,6 +471,7 @@
                     <div class="role-text">Você é o impostor!</div>
                 `;
             } else {
+                const funcaoIndex = gameState.papeis.slice(0, index).filter(p => p === 'inocente').length;
                 content.innerHTML = `
                     <div class="role-section">
                         <div class="role-label">Local:</div>
@@ -407,6 +493,8 @@
 
         function resetGame() {
             gameState = null;
+            modoSurpresa = false;
+            document.getElementById('modoSurpresa').checked = false;
             document.getElementById('cardsScreen').classList.remove('active');
             document.getElementById('configScreen').classList.add('active');
         }
